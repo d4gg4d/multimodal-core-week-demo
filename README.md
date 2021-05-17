@@ -54,9 +54,10 @@ Press the Speechly button and try out the following phrases:
 - What is my iron bank balance
 - Iron bank balance
 
+<img src="assets/screenshot03.png" width="200" height="411" />
+
 Both phrases activate the same action which utilizing Microsoft Graph API attempts to retrieve your current Iron Bank balance from the Excel sheet in the company OneDrive.
 
-<img src="assets/screenshot03.png" width="200" height="411" />
 <img src="assets/screenshot04.png" width="200" height="411" /> 
 
 ## About Speechly
