@@ -16,7 +16,13 @@ SIGHASH=$(keytool \
 
 # Url encoded development signature hash
 ENCODED=$(echo $SIGHASH \
- | python -c "import urllib, sys; print urllib.quote(sys.argv[1] if len(sys.argv) > 1 else sys.stdin.read()[0:-1], \"\")")
+ | python -c \
+"import sys
+try:
+   from urllib import quote
+except ImportError:
+  from urllib.parse import quote
+print(quote(sys.stdin.read()[0:-1], \"\"))")
 
 # Project package name
 PACKAGE=$(grep 'package="[^"]\+"' ${BASE_DIR}/app/src/main/AndroidManifest.xml \
