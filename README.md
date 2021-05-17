@@ -25,7 +25,18 @@ On emulator it is easiest to download the APK directly from [Microsoft website](
 Before running the project on an emulator or a real device make sure to setup the required Intune Company Portal app. 
 
 To get the demo app running quickly we've pre-created:
-- Speechly application with a very simple setup (see `demo.sal`)
+- Speechly application with a very simple SAL configuration:
+  ```
+  subjects = [
+    iron bank balance
+    iron bank value
+  ]
+
+  *query what is my $subjects(subject)
+  *query what's my $subjects(subject)
+  *query my $subjects(subject)
+  *query $subjects(subject)
+  ```
 - Azure AD application in Nitor tenant with minimal setup from you
 
 1. Clone the `multimodal-core-week-demo` repository.
