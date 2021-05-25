@@ -33,7 +33,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="msauth"
                     android:host="com.nitor.multimodalcoreweekdemo"
-                    android:path="/H40qc85s/EyxwnrXGw8DJW3F/ro=" />
+                    android:path="/EyzRZanL35tRuT2Ya+5gXxok0Ok=" />
             </intent-filter>
         </activity>
     </application>

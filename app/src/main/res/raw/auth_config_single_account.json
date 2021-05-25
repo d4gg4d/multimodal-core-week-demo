@@ -1,7 +1,7 @@
 {
-  "client_id" : "9c82a150-10de-466b-aaa2-decae13ba6d5",
+  "client_id" : "65fd4a3c-ccf7-4fff-b3c4-18ff7e60139c",
   "authorization_user_agent" : "DEFAULT",
-  "redirect_uri" : "msauth://com.nitor.multimodalcoreweekdemo/H40qc85s%2FEyxwnrXGw8DJW3F%2Fro%3D",
+  "redirect_uri" : "msauth://com.nitor.multimodalcoreweekdemo/EyzRZanL35tRuT2Ya%2B5gXxok0Ok%3D",
   "broker_redirect_uri_registered" : true,
   "account_mode" : "SINGLE",
   "authorities" : [
