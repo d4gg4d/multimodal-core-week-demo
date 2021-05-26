@@ -14,17 +14,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.microsoft.graph.concurrency.ICallback
 import com.microsoft.graph.core.ClientException
-import com.microsoft.graph.models.extensions.*
-import com.microsoft.identity.client.*
-import com.microsoft.identity.client.exception.*
-import com.speechly.client.slu.Entity
+import com.microsoft.identity.client.IAccount
+import com.nitor.multimodalcoreweekdemo.intents.IntentAction
+import com.nitor.multimodalcoreweekdemo.intents.IntentParser
 import com.speechly.client.slu.Segment
 import com.speechly.client.speech.Client
 import com.speechly.ui.SpeechlyButton
 import kotlinx.coroutines.*
 import java.io.InputStream
 import java.util.*
-import kotlin.math.absoluteValue
 
 private const val TAG = "MainActivity"
 
@@ -36,6 +34,8 @@ class MainActivity : AppCompatActivity() {
         activity = this,
         appId = UUID.fromString("0f669f15-88dc-4429-b7fb-2b049302d0ad")
     )
+
+    private val intentParser: IntentParser = IntentParser()
 
     private var speechlyButton: SpeechlyButton? = null
     private var textView: TextView? = null
@@ -53,7 +53,6 @@ class MainActivity : AppCompatActivity() {
 
         initializeUi()
 
-
         microsoftAccount =  MicrosoftAccount(applicationContext,
             object: MicrosoftAccount.MicrosoftAccountCallback {
 
@@ -68,12 +67,7 @@ class MainActivity : AppCompatActivity() {
                 val transcript: String = segment.words.values.joinToString(" ", transform = { it.value })
                 GlobalScope.launch(Dispatchers.Main) {
                     textView?.text = transcript
-                    if (segment.isFinal) {
-                        Log.d(TAG, "final transcript: $transcript")
-                        when (segment.intent?.intent) {
-                            "report" -> reportHours(segment)
-                        }
-                    }
+                    intentParser.updateLatestSegment(segment)
                 }
             }
         }
@@ -105,8 +99,13 @@ class MainActivity : AppCompatActivity() {
                     speechlyClient.stopContext()
                     GlobalScope.launch(Dispatchers.Default) {
                         delay(500)
+                        //TODO how to make sure that the last segment has arrived?
+                        val action: IntentAction? = intentParser.resolveAction()
+                        intentParser.reset()
+                        val result = action?.process() ?: "Intent not recognized"
                         withContext(Dispatchers.Main) {
                             textView?.visibility = View.INVISIBLE
+                            resultView?.text = result
                         }
                     }
                 }
@@ -158,57 +157,5 @@ class MainActivity : AppCompatActivity() {
 
     private fun showMessage(message: String) {
         Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun reportHours(segment: Segment) {
-        Log.d(TAG, "reporting hours with entities: ${segment.entities}")
-
-        val project = segment.getEntityByType("project")
-        val hours = segment.getEntityByType("hours")
-        val timePeriod = segment.getEntityByType("time_period")
-
-        val projectName = validateTargetProject(project)
-        val reportingHours = validateReportingHours(hours, timePeriod)
-
-        when {
-            allParametersValid(projectName, reportingHours) -> {
-                resultView?.text = "Request Paramaters: ${projectName}:${reportingHours}"
-            }
-            else -> {
-                resultView?.text = "Can't parse reporting hour request parameters"
-            }
-        }
-    }
-
-    private fun validateTargetProject(raw: Entity?): String? {
-        Log.d(TAG, "parsing reporting target from '${raw?.value}'")
-        return raw?.value
-    }
-
-    private fun validateReportingHours(hours: Entity?, timePeriod: Entity?): Number? {
-        return when {
-            hours?.value != null -> parseHours(hours.value)
-            timePeriod?.value != null -> parseTimePeriod(timePeriod.value)
-            else -> null
-        }
-    }
-
-    private fun parseHours(raw: String): Number? {
-        Log.d(TAG, "parsing hours from '${raw}'")
-        return raw.toBigDecimalOrNull()
-    }
-
-    private fun parseTimePeriod(raw: String): Number? {
-        Log.d(TAG, "parsing time period from '${raw}'")
-        return when(raw) {
-            "AFTERNOON", "MORNING", "HALF DAY" -> 3.5F
-            "WHOLE DAY", "FULL DAY", "DAY" -> 7.5F
-            else -> null
-        }
-    }
-
-    private fun allParametersValid(targetProject: String?, hours: Number?): Boolean {
-        return targetProject?.isNotEmpty() == true &&
-                hours != null && hours.toFloat() > 0.0F
     }
 }
