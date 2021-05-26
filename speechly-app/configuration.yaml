@@ -7,7 +7,7 @@ entities:
     type: string
 templates: |
   time_period = [half a hour|half a day|whole day|afternoon|morning]
-  project_name = [core|customer|foobar]
+  project_name = [core|customer]
 
   *report mark $SPEECHLY.SMALL_NUMBER(hours) hours to $project_name(project) {project}
   *report mark [whole day](time_period) to $project_name(project)

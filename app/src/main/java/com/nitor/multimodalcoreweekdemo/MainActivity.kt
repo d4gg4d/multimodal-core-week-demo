@@ -15,18 +15,16 @@ import androidx.appcompat.app.AppCompatActivity
 import com.microsoft.graph.concurrency.ICallback
 import com.microsoft.graph.core.ClientException
 import com.microsoft.graph.models.extensions.*
-import com.microsoft.graph.requests.extensions.GraphServiceClient
 import com.microsoft.identity.client.*
 import com.microsoft.identity.client.exception.*
 import com.speechly.client.slu.Entity
 import com.speechly.client.slu.Segment
 import com.speechly.client.speech.Client
 import com.speechly.ui.SpeechlyButton
-import com.squareup.okhttp.Dispatcher
 import kotlinx.coroutines.*
 import java.io.InputStream
 import java.util.*
-import kotlin.math.roundToInt
+import kotlin.math.absoluteValue
 
 private const val TAG = "MainActivity"
 
@@ -72,10 +70,8 @@ class MainActivity : AppCompatActivity() {
 
                 GlobalScope.launch(Dispatchers.Main) {
                     textView?.text = transcript
-                    if (segment.intent != null) {
-                        when (segment.intent?.intent) {
-                            "query" -> handleQuery(segment)
-                        }
+                    when (segment.intent?.intent) {
+                        "report" -> reportHours(segment)
                     }
                 }
             }
@@ -161,26 +157,52 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun handleQuery(segment: Segment) {
-        val subject: Entity? = segment.getEntityByType("subject")
+    private fun reportHours(segment: Segment) {
         Log.d(TAG, segment.entities.toString())
-        if (segment.isFinal && subject?.isFinal == true) {
-            when (subject.value.toUpperCase(Locale.ENGLISH)) {
-                "IRON BANK BALANCE" -> {
-                    microsoftAccount!!.queryIronBankBalance(object: ICallback<String> {
-                    override fun success(result: String?) {
-                        runOnUiThread{ resultView?.text = "Iron Bank Balance\n$result€" }
-                    }
+        if (segment.isFinal) {
 
-                    override fun failure(ex: ClientException?) {
-                        runOnUiThread{ resultView?.text = "Failed to get it" }
-                    }
-                    })
+            val hours = segment.getEntityByType("hours")
+            val project = segment.getEntityByType("project")
+            val timePeriod = segment.getEntityByType("time_period")
+
+            val reportingHours = validateReportingHours(hours, timePeriod)
+            val projectName = validateTargetProject(project?.value)
+
+            when {
+                allParametersValid(projectName, reportingHours) -> {
+                    resultView?.text = "Request Paramaters: ${projectName}:${reportingHours}"
                 }
                 else -> {
-                    //resultView?.text = "Don't know about that"
+                    resultView?.text = "Can't parse reporting hour request parameters"
                 }
             }
         }
+    }
+
+    private fun validateReportingHours(hours: Entity?, timePeriod: Entity?): Number? {
+        return when {
+            hours?.value != null -> parseHours(hours.value)
+            timePeriod?.value != null -> parseTimePeriod(timePeriod.value)
+            else -> null
+        }
+    }
+
+    private fun parseHours(raw: String): Number {
+        Log.d(TAG, "parsing hours from '${raw}'")
+        return 1.0F
+    }
+
+    private fun parseTimePeriod(raw: String): Number {
+        Log.d(TAG, "parsing time period from '${raw}'")
+        return 2.0F
+    }
+
+    private fun validateTargetProject(raw: String?): String? {
+        Log.d(TAG, "parsing reporting target from '${raw}'")
+        return raw
+    }
+
+    private fun allParametersValid(targetProject: String?, hours: Number?): Boolean {
+        return targetProject?.isNotEmpty() == true && hours != null && hours.toFloat() > 0.0F
     }
 }
