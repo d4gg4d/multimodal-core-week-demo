@@ -103,4 +103,11 @@
         app:layout_constraintVertical_bias="0.841"
         tools:srcCompat="@tools:sample/avatars" />
 
+    <!-- Place Web-view on the Screen -->
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></WebView>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
