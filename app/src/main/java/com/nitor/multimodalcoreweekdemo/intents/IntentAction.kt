@@ -8,8 +8,3 @@ interface IntentAction {
 
     fun process(): String
 }
-
-
-class NoAction(override val segment: Segment) : IntentAction {
-    override fun process(): String { return "No Action" }
-}
