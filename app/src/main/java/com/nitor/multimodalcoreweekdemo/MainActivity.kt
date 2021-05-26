@@ -104,7 +104,9 @@ class MainActivity : AppCompatActivity() {
                     speechlyClient.stopContext()
                     GlobalScope.launch(Dispatchers.Default) {
                         delay(500)
-                        textView?.visibility = View.INVISIBLE
+                        withContext(Dispatchers.Main) {
+                            textView?.visibility = View.INVISIBLE
+                        }
                     }
                 }
             }
