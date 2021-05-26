@@ -9,6 +9,7 @@ private const val TAG = "HourReportingAction"
 class HourReportAction(override val segment: Segment) : IntentAction {
 
     override fun process(): String {
+        Log.d(TAG, "Final transcript is: ${segment.words.values.joinToString(" ", transform = { it.value })}")
         Log.d(TAG, "reporting hours with entities: ${segment.entities}")
 
         val project = segment.getEntityByType("project")
