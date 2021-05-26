@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity() {
                 GlobalScope.launch(Dispatchers.Main) {
                     textView?.text = transcript
                     if (segment.isFinal) {
+                        Log.d(TAG, "final transcript: $transcript")
                         when (segment.intent?.intent) {
                             "report" -> reportHours(segment)
                         }
