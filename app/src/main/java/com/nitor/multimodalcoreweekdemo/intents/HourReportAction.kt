@@ -1,13 +1,13 @@
 package com.nitor.multimodalcoreweekdemo.intents
 
 import android.util.Log
-import com.nitor.multimodalcoreweekdemo.services.HoursReportingService
+import com.nitor.multimodalcoreweekdemo.services.HoursReporting
 import com.speechly.client.slu.Entity
 import com.speechly.client.slu.Segment
 
 private const val TAG = "HourReportingAction"
 
-class HourReportAction(override val segment: Segment, val hoursReportingService: HoursReportingService) : IntentAction {
+class HourReportAction(override val segment: Segment, val hoursReporting: HoursReporting) : IntentAction {
 
     override fun process(): String {
         Log.d(TAG, "Final transcript is: ${segment.words.values.joinToString(" ", transform = { it.value })}")

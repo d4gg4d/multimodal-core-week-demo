@@ -1,9 +1,9 @@
 package com.nitor.multimodalcoreweekdemo.intents
 
-import com.nitor.multimodalcoreweekdemo.services.HoursReportingService
+import com.nitor.multimodalcoreweekdemo.services.HoursReporting
 import com.speechly.client.slu.Segment
 
-class IntentParser(private val hoursReporting: HoursReportingService) {
+class IntentParser(private val hoursReporting: HoursReporting) {
 
     var latestSegment: Segment? = null
     var latestFinalSegment: Segment? = null

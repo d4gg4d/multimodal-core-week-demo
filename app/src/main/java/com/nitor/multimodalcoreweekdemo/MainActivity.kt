@@ -18,7 +18,7 @@ import com.microsoft.graph.core.ClientException
 import com.microsoft.identity.client.IAccount
 import com.nitor.multimodalcoreweekdemo.intents.IntentAction
 import com.nitor.multimodalcoreweekdemo.intents.IntentParser
-import com.nitor.multimodalcoreweekdemo.services.HoursReportingService
+import com.nitor.multimodalcoreweekdemo.services.HoursReporting
 import com.speechly.client.slu.Segment
 import com.speechly.client.speech.Client
 import com.speechly.ui.SpeechlyButton
@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     private var intentParser: IntentParser? = null
-    private var hoursReporting: HoursReportingService? = null
+    private var hoursReporting: HoursReporting? = null
 
     private var speechlyButton: SpeechlyButton? = null
     private var textView: TextView? = null
@@ -62,13 +62,17 @@ class MainActivity : AppCompatActivity() {
             object: MicrosoftAccount.MicrosoftAccountCallback {
                 override fun onAccountLoaded(account: IAccount?) {
                     updateUI(account)
+
+                    hoursReporting = HoursReporting(microsoftAccount!!, webView = webView);
+                    hoursReporting!!.projects.observeForever {
+                        Log.d(TAG, "Available projects:>")
+                        it.forEach { p -> Log.d(TAG, p.toString()) }
+                    }
+
+                    intentParser = IntentParser(hoursReporting!!)
                 }
             }
         )
-
-        hoursReporting = HoursReportingService(microsoftAccount!!, webView = webView);
-
-        intentParser = IntentParser(hoursReporting!!)
 
         GlobalScope.launch(Dispatchers.Default) {
             speechlyClient.onSegmentChange { segment: Segment ->
@@ -79,6 +83,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
     }
 
     @ExperimentalCoroutinesApi

@@ -14,7 +14,7 @@ import retrofit2.Response
 
 private const val TAG = "HoursReporting"
 
-class HoursReportingService(
+class HoursReporting (
     private val microsoftAccount: MicrosoftAccount,
     private val url: String = "https://hours.dev.nitor.zone/rest/projects",
     val webView: WebView //TODO haxor to get the cookie through UI
@@ -27,7 +27,10 @@ class HoursReportingService(
     init {
         if (authCookie == null) getCookieFromURL(url) {
             fetchAvailableProjects(authCookie!!)
+        } else {
+            fetchAvailableProjects(authCookie!!)
         }
+
         /*
         if (cookie==null && microsoftAccount == null) {
             //User has not logged in with MSAL and cookie used for API is null => Log in to tuntipulaattori to extract cookie
@@ -42,18 +45,13 @@ class HoursReportingService(
         PulaattoriClient.create(cookie, authName).getProjects()
             .enqueue( object : Callback<List<Project>> {
                 override fun onResponse(call: Call<List<Project>>?, response: Response<List<Project>>?) {
-                    if(response?.body() != null)
-                        projects.value = response.body()
+                    projects.value = response?.body() ?: emptyList()
+                    Log.d(TAG, "Succesfully fetched available project listing, size of ${projects.value!!.size}")
                 }
                 override fun onFailure(call: Call<List<Project>>?, t: Throwable?) {
                     Log.e(TAG, "Epic fail when getting projects", t)
                 }
             })
-    }
-
-    private fun iterateThroughProjects() {
-        println("Available projects:>")
-        projects.value?.forEach { p -> println(p) }
     }
 
     private fun getCookieFromURL(url: String, callback: () -> Unit) {
