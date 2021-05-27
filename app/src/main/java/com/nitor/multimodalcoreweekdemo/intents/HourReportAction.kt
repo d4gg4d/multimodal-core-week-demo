@@ -21,7 +21,7 @@ class HourReportAction(override val segment: Segment, val hoursReporting: HoursR
         val reportingHours = validateReportingHours(hours, timePeriod)
 
         return when {
-            allParametersValid(projectName, reportingHours) -> "Request Paramaters: ${projectName}:${reportingHours}"
+            allParametersValid(projectName, reportingHours) -> "Marking $reportingHours hours to $projectName"
             else ->  "Can't parse reporting hour request parameters"
         }
     }
