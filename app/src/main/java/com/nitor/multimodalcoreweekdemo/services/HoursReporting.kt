@@ -7,16 +7,18 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.lifecycle.MutableLiveData
 import com.nitor.multimodalcoreweekdemo.MicrosoftAccount
+import com.nitor.multimodalcoreweekdemo.models.HourEntry
 import com.nitor.multimodalcoreweekdemo.models.Project
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
 
 private const val TAG = "HoursReporting"
 
 class HoursReporting (
     private val microsoftAccount: MicrosoftAccount,
-    private val url: String = "https://hours.dev.nitor.zone/rest/projects",
+    url: String = "https://hours.dev.nitor.zone/rest/projects",
     val webView: WebView //TODO haxor to get the cookie through UI
 ) {
 
@@ -26,10 +28,11 @@ class HoursReporting (
 
     init {
         if (authCookie == null) getCookieFromURL(url) {
-            fetchAvailableProjects(authCookie!!)
+            fetchAvailableProjects()
         } else {
-            fetchAvailableProjects(authCookie!!)
+            fetchAvailableProjects()
         }
+
 
         /*
         if (cookie==null && microsoftAccount == null) {
@@ -40,9 +43,37 @@ class HoursReporting (
         */
     }
 
-    private fun fetchAvailableProjects(cookie: String) {
+    fun sendHours(projectName: String, hours: Number): Boolean {
+        // TODO here should be the mapping of projectAlias,hour tuple to real request
         val authName = microsoftAccount.getFullName()!!
-        PulaattoriClient.create(cookie, authName).getProjects()
+
+        val today = Date()
+        val description = "Core Week PoC"
+        val projectId = resolveProjectId(projectName)
+        val hourEntry = HourEntry(
+            hours = hours.toDouble(),
+            localDate = today,
+            projectId = projectId,
+            description = description
+        )
+
+        return PulaattoriClient.create(authCookie!!, authName).uploadHours(listOf(hourEntry)).isSuccessful
+    }
+
+    private fun resolveProjectId(projectName: String): String {
+        // customerName: Nitor
+        // caseName: Nitor Creations Core
+        // projectName: "Core Projects"
+        // projectId: f1cd281606b08570123b5875fa523c44
+//        projects.value?.sortedBy {
+//            (it.projectName.toUpperCase()
+//        }
+        return "f1cd281606b08570123b5875fa523c44"
+    }
+
+    private fun fetchAvailableProjects() {
+        val authName = microsoftAccount.getFullName()!!
+        PulaattoriClient.create(authCookie!!, authName).getProjects()
             .enqueue( object : Callback<List<Project>> {
                 override fun onResponse(call: Call<List<Project>>?, response: Response<List<Project>>?) {
                     projects.value = response?.body() ?: emptyList()

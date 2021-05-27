@@ -7,7 +7,7 @@ import com.speechly.client.slu.Segment
 
 private const val TAG = "HourReportingAction"
 
-class HourReportAction(override val segment: Segment, val hoursReporting: HoursReporting) : IntentAction {
+class HourReportAction(override val segment: Segment, private val hoursReporting: HoursReporting) : IntentAction {
 
     override fun process(): String {
         Log.d(TAG, "Final transcript is: ${segment.words.values.joinToString(" ", transform = { it.value })}")
@@ -20,8 +20,19 @@ class HourReportAction(override val segment: Segment, val hoursReporting: HoursR
         val projectName = validateTargetProject(project)
         val reportingHours = validateReportingHours(hours, timePeriod)
 
+        //
+        // TODO here should be the parsing logic of all reporting hours that we want list of (project Alias, hours)
+        // - sanity check for the request
+
         return when {
-            allParametersValid(projectName, reportingHours) -> "Marking $reportingHours hours to $projectName"
+            allParametersValid(projectName, reportingHours) -> {
+                val isSuccess = hoursReporting.sendHours(projectName!!, reportingHours!!)
+                return if (isSuccess) {
+                    "Marking $reportingHours hours to $projectName"
+                } else {
+                    "Failed to send hour report"
+                }
+            }
             else ->  "Can't parse reporting hour request parameters"
         }
     }
