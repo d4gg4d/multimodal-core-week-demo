@@ -1,13 +1,13 @@
 package com.nitor.multimodalcoreweekdemo.models
 
 import com.google.gson.annotations.SerializedName
-import java.util.*
+import java.time.LocalDate
 
 class HourEntry (
     @SerializedName("hours")
     val hours: Double,
-    @SerializedName("localDate")
-    val localDate: Date,
+    @SerializedName("date")
+    val date: String,
     @SerializedName("projectId")
     val projectId: String,
     @SerializedName("description")

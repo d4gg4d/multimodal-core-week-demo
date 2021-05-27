@@ -9,9 +9,11 @@ import androidx.lifecycle.MutableLiveData
 import com.nitor.multimodalcoreweekdemo.MicrosoftAccount
 import com.nitor.multimodalcoreweekdemo.models.HourEntry
 import com.nitor.multimodalcoreweekdemo.models.Project
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.time.LocalDate
 import java.util.*
 
 private const val TAG = "HoursReporting"
@@ -47,17 +49,26 @@ class HoursReporting (
         // TODO here should be the mapping of projectAlias,hour tuple to real request
         val authName = microsoftAccount.getFullName()!!
 
-        val today = Date()
+        val today = LocalDate.now()
         val description = "Core Week PoC"
         val projectId = resolveProjectId(projectName)
         val hourEntry = HourEntry(
             hours = hours.toDouble(),
-            localDate = today,
+            date = today.toString(),
             projectId = projectId,
             description = description
         )
 
-        return PulaattoriClient.create(authCookie!!, authName).uploadHours(listOf(hourEntry)).isSuccessful
+        PulaattoriClient.create(authCookie!!, authName).uploadHours(listOf(hourEntry))
+            .enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                    Log.d(TAG, "Successfully reported hours")
+                }
+                override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                    Log.e(TAG, "Failed to report hours", t)
+                }
+            })
+        return true
     }
 
     private fun resolveProjectId(projectName: String): String {
