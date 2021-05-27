@@ -84,6 +84,14 @@ class MicrosoftAccount(applicationContext: Context, private val accountCallback:
         return mAuthenticationResult?.accessToken
     }
 
+    fun getFullName(): String? {
+        if (mSingleAccountApp == null || mActiveAccount == null) {
+            return null
+        }
+
+        return mActiveAccount?.claims?.get("name").toString()
+    }
+
     fun getGraphServiceClient(): IGraphServiceClient? {
         val accessToken: String? = getAccessToken()
         if (accessToken != null) {

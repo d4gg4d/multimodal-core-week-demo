@@ -15,7 +15,6 @@ import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import com.microsoft.graph.concurrency.ICallback
@@ -71,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         var cookie : String? = CookieManager.getInstance().getCookie(url)
         getCookieFromURL(url);
         /*
-        if(cookie==null && microsoftAccount == null){
+        if (cookie==null && microsoftAccount == null) {
             //User has not logged in with MSAL and cookie used for API is null => Log in to tuntipulaattori to extract cookie
             //TODO: Investigate how to do this better. Now 2 login screens are needed...
             getCookieFromURL(url);
@@ -182,11 +181,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showMessage(message: String) {
-        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun getCookieFromURL(url: String){
+    private fun getCookieFromURL(url: String) {
         Log.d(TAG, "Opening WEBVIEW to $url to get authetnication cookie")
         webView?.visibility = VISIBLE
         webView.settings.setJavaScriptEnabled(true)
@@ -205,19 +200,18 @@ class MainActivity : AppCompatActivity() {
         webView.loadUrl(url)
     }
 
-    private fun updateProjects(cookie: String){
-        //TODO: x-auth-name:> Where to get this?
-        val projectsapi = PulaattoriClient.create(cookie, "Martin Rosin").getProjects()
-
-        projectsapi.enqueue( object : Callback<List<Project>> {
-            override fun onResponse(call: Call<List<Project>>?, response: Response<List<Project>>?) {
-                if(response?.body() != null)
-                    projects.value = response.body()
-            }
-            override fun onFailure(call: Call<List<Project>>?, t: Throwable?) {
-                Log.e(TAG, "Epic fail when getting projects", t)
-            }
-        })
+    private fun updateProjects(cookie: String) {
+        val authName = microsoftAccount!!.getFullName()!!
+        PulaattoriClient.create(cookie, authName).getProjects()
+            .enqueue( object : Callback<List<Project>> {
+                override fun onResponse(call: Call<List<Project>>?, response: Response<List<Project>>?) {
+                    if(response?.body() != null)
+                        projects.value = response.body()
+                }
+                override fun onFailure(call: Call<List<Project>>?, t: Throwable?) {
+                    Log.e(TAG, "Epic fail when getting projects", t)
+                }
+            })
     }
 
     private fun iterateThroughProjects(){
